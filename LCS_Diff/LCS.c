@@ -164,6 +164,8 @@ int main(int argc, char* argv[])
 			M = x_line_length;
 			N = y_line_length;
 
+			printf("M=%d, N=%d", M, N);
+
 			C = malloc((M+1) * sizeof(int *));
 
 			for(i = 0; i <= M; i++)
@@ -172,10 +174,38 @@ int main(int argc, char* argv[])
 			}
 
 
-			for(i = M-1; i >= 0; i--)
+			for(i = M-1; i >= 2;  i-=2)
 			{
-				for(j = N-1; j>=0; j--)
+				for(j = N-1; j>=2; j-=2)
 				{
+					if(x_line[i] == y_line[j])
+					{
+						C[i][j] = C[i+1][j+1] + 1;
+
+					}
+					else
+					{
+						C[i][j] = max(C[i+1][j], C[i][j+1]);
+					}
+
+					if(x_line[i-1] == y_line[j-1])
+					{
+						C[i-1][j-1] = C[i][j] + 1;
+					}
+					else
+					{
+						C[i-1][j-1] = max(C[i][j-1], C[i-1][j]);
+
+					}
+				}
+			}
+
+			printf("i=%d, j=%d", i, j);
+			for(; i>=0; i--)
+			{
+				for(; j>=0; j--)
+				{
+					
 					if(x_line[i] == y_line[j])
 					{
 						C[i][j] = C[i+1][j+1] + 1;
