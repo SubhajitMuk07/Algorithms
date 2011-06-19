@@ -71,6 +71,8 @@ int main(int argc, char* argv[])
 	int sequence_y_length = 0;
 	char x_line[LINE_SIZE + 1];
 	char y_line[LINE_SIZE + 1];
+	int x_line_length = 0;
+	int y_line_length = 0;
 	int x_idx = 0;
 	int y_idx = 0;
 	int x_done = 0;
@@ -124,13 +126,13 @@ int main(int argc, char* argv[])
 			if(x_idx + LINE_SIZE < sequence_x_length)
 			{
 				strncpy(x_line, &sequence_x[x_idx], LINE_SIZE);
-				x_line[LINE_SIZE] = '\0';
 				x_idx = x_idx + LINE_SIZE;
+				x_line_length = LINE_SIZE;
 			}
 			else
 			{
 				strncpy(x_line, &sequence_x[x_idx], sequence_x_length - x_idx );
-				x_line[LINE_SIZE] = '\0';
+				x_line_length = sequence_x_length - x_idx;
 				x_idx = x_idx + (sequence_x_length - x_idx);
 				x_done = 1;
 			}
@@ -139,13 +141,13 @@ int main(int argc, char* argv[])
 			if(y_idx + LINE_SIZE < sequence_y_length)
 			{
 				strncpy(y_line, &sequence_y[y_idx], LINE_SIZE);
-				y_line[LINE_SIZE] = '\0';
+				y_line_length = LINE_SIZE;
 				y_idx = y_idx + LINE_SIZE;
 			}
 			else
 			{
 				strncpy(y_line, &sequence_y[y_idx], sequence_y_length - y_idx );
-				y_line[LINE_SIZE] = '\0';
+				y_line_length = sequence_y_length - y_idx;
 				y_idx = y_idx + (sequence_y_length - y_idx);
 				y_done = 1;
 			}
@@ -159,8 +161,9 @@ int main(int argc, char* argv[])
 			}
 
 
-			M = strlen(x_line);
-			N = strlen(y_line);
+			M = x_line_length;
+			N = y_line_length;
+
 			C = malloc((M+1) * sizeof(int *));
 
 			for(i = 0; i <= M; i++)
