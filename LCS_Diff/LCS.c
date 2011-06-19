@@ -246,7 +246,7 @@ int main(int argc, char* argv[])
 			}
 
 
-			for (i = 0; i < N; i++) {
+			for (i = 0; i <= M; i++) {
 				    free(C[i]);
 			}
 			free(C);
