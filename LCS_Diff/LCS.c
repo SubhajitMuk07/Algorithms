@@ -23,7 +23,7 @@
 
 
 //Process 100 characters at a time for memory
-#define LINE_SIZE 100
+#define LINE_SIZE 70
 
 
 inline int max(int a, int b)
