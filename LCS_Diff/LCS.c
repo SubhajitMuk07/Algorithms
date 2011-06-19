@@ -22,6 +22,7 @@
 #include <stdlib.h>
 
 
+//Process 100 characters at a time for memory
 #define LINE_SIZE 100
 
 
@@ -31,7 +32,7 @@ inline int max(int a, int b)
 }
 
 
-char* get_file_contents(char* path)
+char* get_file_contents(char* path, int* length)
 {
 	FILE * pFile;
 	  long lSize;
@@ -45,6 +46,8 @@ char* get_file_contents(char* path)
 
 	  fseek (pFile , 0 , SEEK_END);
 	  lSize = ftell (pFile);
+	  //To avoid having to call strlen on huge buffers, keep track of the length here.
+	  *length = lSize;
 	  rewind (pFile);
 
 	  buffer = (char*) malloc (sizeof(char)*lSize);
@@ -64,6 +67,8 @@ int main(int argc, char* argv[])
 	int show_all_lines = 0;
 	char* sequence_x = NULL;
 	char* sequence_y = NULL;
+	int sequence_x_length = 0;
+	int sequence_y_length = 0;
 	char x_line[LINE_SIZE + 1];
 	char y_line[LINE_SIZE + 1];
 	int x_idx = 0;
@@ -79,8 +84,8 @@ int main(int argc, char* argv[])
 
 	if(argc >= 3)
 	{
-			sequence_x = get_file_contents(argv[1]);
-			sequence_y = get_file_contents(argv[2]);
+			sequence_x = get_file_contents(argv[1],  &sequence_x_length);
+			sequence_y = get_file_contents(argv[2], &sequence_y_length);
 			if(sequence_x == NULL || sequence_y == NULL)
 			{
 				if(sequence_x != NULL)
@@ -106,7 +111,6 @@ int main(int argc, char* argv[])
 		if(strcmp(argv[3], "--show-all-lines") == 0)
 		{
 			show_all_lines = 1;
-			puts("Found full switch");
 		}
 	}
 
@@ -117,7 +121,7 @@ int main(int argc, char* argv[])
 
 			memset(x_line, 0, sizeof(x_line));
 
-			if(x_idx + LINE_SIZE < strlen(sequence_x))
+			if(x_idx + LINE_SIZE < sequence_x_length)
 			{
 				strncpy(x_line, &sequence_x[x_idx], LINE_SIZE);
 				x_line[LINE_SIZE] = '\0';
@@ -125,14 +129,14 @@ int main(int argc, char* argv[])
 			}
 			else
 			{
-				strncpy(x_line, &sequence_x[x_idx], strlen(sequence_x) - x_idx );
+				strncpy(x_line, &sequence_x[x_idx], sequence_x_length - x_idx );
 				x_line[LINE_SIZE] = '\0';
-				x_idx = x_idx + (strlen(sequence_x) - x_idx);
+				x_idx = x_idx + (sequence_x_length - x_idx);
 				x_done = 1;
 			}
 
 			memset(y_line, 0, sizeof(y_line));
-			if(y_idx + LINE_SIZE < strlen(sequence_y))
+			if(y_idx + LINE_SIZE < sequence_y_length)
 			{
 				strncpy(y_line, &sequence_y[y_idx], LINE_SIZE);
 				y_line[LINE_SIZE] = '\0';
@@ -140,9 +144,9 @@ int main(int argc, char* argv[])
 			}
 			else
 			{
-				strncpy(y_line, &sequence_y[y_idx], strlen(sequence_y) - y_idx );
+				strncpy(y_line, &sequence_y[y_idx], sequence_y_length - y_idx );
 				y_line[LINE_SIZE] = '\0';
-				y_idx = y_idx + (strlen(sequence_y) - y_idx);
+				y_idx = y_idx + (sequence_y_length - y_idx);
 				y_done = 1;
 			}
 
@@ -234,7 +238,7 @@ int main(int argc, char* argv[])
 			{
 				if(diff_count > 0)
 				{
-					printf("%s | %s", x_line, y_line);
+					printf("%s | \r\n%s", x_line, y_line);
 					diff_count = 0;
 				}
 
@@ -244,8 +248,8 @@ int main(int argc, char* argv[])
 
 			for (i = 0; i < N; i++) {
 				    free(C[i]);
-				  }
-				  free(C);
+			}
+			free(C);
 
 	}
 
