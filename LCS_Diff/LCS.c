@@ -1,13 +1,13 @@
 /*
- * 
  *
  * Inputs:
  *	Two file paths which we should diff.  Options arguments include --show-all-lines as explained below.
  *
  * Outputs:
- *	By default the input files are borken into 70 character 'lines'.  When two of these lines are determined to be different, they are displayed to the screen.
+ *	By default the input files are broken into 70 character 'lines'.  When two of these lines are determined to be different, they are displayed to the screen.
  *	Lines prefixed with > are from the first file.
  *	Lines prefixed with < are from the second file.
+ *	The output will also display the following message:  Difference located at <File1>:[start-index]-[end-index] and <file2>:[start-index]-end[index]
  *	This is the same output from diff as seen on linux.
  *	If the --show-all-lines option is included the output will be the merged version of two files with > indicating changes from the first file and < being differences from the second.
  *
@@ -16,8 +16,7 @@
  * 	Uses a defined line size to deal with very large files.
  *
  * 	Uses LCS algorithm as described in CLRS "Introduction to Algorithms"  3rd Edition.
- *	Basicaly, we build our LCS sub-problem solutions table
- *	We can then use those values to determine when our files differed.
+ *	Basically, we build our LCS sub-problem solutions table and we can then use those values to determine when our files differed.
  *
  * 	This is going to do the same thing as the following shell commands:
  *
@@ -251,8 +250,8 @@ int main(int argc, char* argv[])
 
 
 			//M and N are sizes used to create our MxN solutions table
-			M = x_line_length-1;
-			N = y_line_length-1;
+			M = x_line_length;
+			N = y_line_length;
 
 		
 			//Allocate memory for our sub-problem solutions table
@@ -298,6 +297,7 @@ int main(int argc, char* argv[])
 			 * So as soon as we find a difference, break out of this and just display the lines for comparison
 			 *
 			 * Now if the user has included the --show-all-lines option, then we should show the merged result and not break out early. 
+			 * We can use the LCS lengths we chose to then determine how and which characters differed from our texts.
 			 *
 			 */
 			i = 0, j = 0;
@@ -313,9 +313,10 @@ int main(int argc, char* argv[])
 					i++;
 					j++;
 				}
+				else{
 				//Our first file contains a difference from our second, break now that we know the lines have a diff
 				//If we are showing the merged contents, display and continue in our loop
-				else if(C[i+1][j] >= C[i][j+1])
+				if(C[i-1][j] >= C[i][j-1])
 				{
 					if(show_all_lines > 0)
 						printf("(>%c)", x_line[i++]);
@@ -327,7 +328,7 @@ int main(int argc, char* argv[])
 				}
 				//File2 is different as well.
 				//Break if not showing all lines, otherwise display the character and continue on in this loop.
-				else
+				if(C[i-1][j] <=C[i][j-1])
 				{
 					if(show_all_lines > 0)
 							printf("(<%c)", y_line[j++]);
@@ -336,6 +337,7 @@ int main(int argc, char* argv[])
 						++diff_count;
 						break;
 					}
+				}
 				}
 			}
 
@@ -361,7 +363,7 @@ int main(int argc, char* argv[])
 			{
 				if(diff_count > 0)
 				{
-					printf("Difference located at %s:%d and %s:%d:\r\n", argv[1],  x_idx-x_line_length, argv[2], y_idx-y_line_length);
+					printf("Difference located at starting at %s:%d-%d and %s:%d-%d:\r\n", argv[1],  x_idx-x_line_length, x_idx, argv[2], y_idx-y_line_length, y_idx);
 					printf("< %s | \r\n> %s", x_line, y_line);
 					diff_count = 0;
 				}
